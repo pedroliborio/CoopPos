@@ -1,0 +1,1 @@
+netgenerate -L2 --grid --grid.x-number=5 --grid.y-number=14 --grid.y-length=80 --grid.x-length=270 --output-file=grid.net.xml --no-turnarounds --grid.alphanumerical-id
