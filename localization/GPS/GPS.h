@@ -24,7 +24,7 @@ private:
     double error;
 public:
     GPS();
-    GPS::GPS(std::string outagesFile);
+    GPS(std::string route);
     GPS(double mean, double stdDev);
     virtual ~GPS();
     void CompPosition(Coord *realCoord);

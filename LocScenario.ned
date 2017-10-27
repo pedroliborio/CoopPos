@@ -1,3 +1,4 @@
+package com.liborio.cooppos;
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -11,15 +12,22 @@
 // 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
-// 
+//
+//import org.car2x.veins.nodes.RSU;
+import org.car2x.veins.nodes.Scenario;
+import org.car2x.veins.nodes.RSU;
+import com.liborio.cooppos.localization.OutagesServer.OutagesServer;
 
-package com.liborio.cooppos.Communication;
-//
-// TODO auto-generated module
-//
-simple StatVehicle extends Communication
+network LocScenario extends Scenario
 {
-    @class(StatVehicle);
-    @display("i=device/receiverdish");
-    
+    submodules:
+        rsu[1]: RSU {
+            @display("p=150,140;i=device/receiverdish,blue");
+        }
+
+        outagesServer : OutagesServer {
+            @display("i=abstract/db;p=68,73");
+        }
+
+
 }

@@ -1,1 +1,1 @@
-package com.liborio.sbrc2018;
+package com.liborio.cooppos;

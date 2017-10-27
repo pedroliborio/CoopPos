@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
- <copy file="grid.net.xml">
- </copy>
- <copy file="150_40.rou.xml">
- </copy>
- <copy file="150_40.sumo.cfg" type="config">
- </copy>
-</launch>

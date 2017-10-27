@@ -285,10 +285,18 @@ void Communication::handleSelfMsg(cMessage* msg) {
     switch (msg->getKind()) {
     case SEND_BEACON_EVT: {
         BasicSafetyMessage* bsm = new BasicSafetyMessage();
+        //Clean Up older beacons
         CleanUpListNodes();
-        UpdatePositions();
+        //Insert Beacon's Information and Update GPS and DR Modules
         InsertBeaconInformation(bsm);
+
+        UpdateCooperativePositioning();
+
+        ImproveDeadReckoning();
+
+        //Update all statistics
         UpdateStatistics();
+
         WriteLogFiles();
         populateWSM(bsm);
         sendDown(bsm);
@@ -410,7 +418,7 @@ bool Communication::VerifyTTL(BasicSafetyMessage* bsm){
 
 void Communication::UpdateGPS(){
     //Defining a novel GPS position]
-    gpsModule->CompPosition(&realPos);
+    gpsModule->CompPosition(&atualSUMOUTMPos);
 }
 
 void Communication::UpdateNodesList(BasicSafetyMessage *bsm){
@@ -420,7 +428,7 @@ void Communication::UpdateNodesList(BasicSafetyMessage *bsm){
             it->posGPS = bsm->getSenderGPSPos();
             it->realPos = bsm->getSenderRealPos();
             it->rssi = bsm->getRssi();//TODO Improve to calculate using a RSSI Model Fix it with values of the paper.
-            it->distanceRSSI = realPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
+            it->distanceRSSI = atualSUMOUTMPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
             it->timestamp = bsm->getTimestamp();
             return;
         }
@@ -431,7 +439,7 @@ void Communication::UpdateNodesList(BasicSafetyMessage *bsm){
     node.posGPS = bsm->getSenderGPSPos();
     node.realPos = bsm->getSenderRealPos();
     node.rssi = bsm->getRssi();//TODO Improve to calculate using a RSSI Model Fix it with values of the paper.
-    node.distanceRSSI = realPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
+    node.distanceRSSI = atualSUMOUTMPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
     node.timestamp = bsm->getTimestamp();
 
     listNodes.push_back(node);
@@ -442,10 +450,10 @@ void Communication::UpdateCooperativePositioning(){
 
     if(listNodes.size() > 3) {
         //TODO Call Multilateration Method
-        if (multilateration.DoMultilateration(&listNodes)){
-            coopPos = multilateration.getEstPosition();
-            coopPos.z = realPos.z;
-            errorCPPos = coopPos.distance(realPos);
+        if (multilateration->DoMultilateration(&listNodes)){
+            coopPos = multilateration->getEstPosition();
+            coopPos.z = atualSUMOUTMPos.z;
+            errorCPPos = coopPos.distance(atualSUMOUTMPos);
         }
         residual = SetResidual();
         SortByResidual();
@@ -460,7 +468,7 @@ void Communication::UpdateCooperativePositioning(){
             listNodes.pop_front();
 
             //FIXME Verificar isso com calma
-            if(!(multilateration.DoMultilateration(&listNodes)) ){
+            if(!(multilateration->DoMultilateration(&listNodes)) ){
                 //Apos retirar uma posição o sisema ficou sem solução entao nao altera
                 listNodes = tempList; //devolve o beacon que foi retirado
                 break;
@@ -471,9 +479,9 @@ void Communication::UpdateCooperativePositioning(){
 
             if(localResidual < residual){
                 residual = localResidual;
-                coopPos = multilateration.getEstPosition();
-                coopPos.z = realPos.z;
-                errorCPPos = coopPos.distance(realPos);
+                coopPos = multilateration->getEstPosition();
+                coopPos.z = atualSUMOUTMPos.z;
+                errorCPPos = coopPos.distance(atualSUMOUTMPos);
                 tempList = listNodes;
             }
             else{
@@ -498,36 +506,12 @@ double Communication::SetResidual(){
     residual = 0;
     for(std::list<Node>::iterator it=listNodes.begin(); it!= listNodes.end(); ++it){
         //distance from the estimated point by multilateration to the position of an acnhor node (i)
-        distance = multilateration.getEstPosition().distance(it->realPos);
+        distance = multilateration->getEstPosition().distance(it->realPos);
         //residual is the difference between the above distance and the rssi distance
         it->residual = (distance - it->distanceRSSI) * (distance - it->distanceRSSI);
         residual+= it->residual;
     }
     return residual;
-}
-
-void Communication::InsertBeaconInformation(BasicSafetyMessage *bsm){
-    Coord coord;
-    bsm->setHops(hops);
-    bsm->setSenderGPSPos(gpsModule->getPosition());
-    bsm->setSenderRealPos(realPos);
-    bsm->setPersistentID(bsm->getId());
-}
-
-void Communication::UpdatePositions(){
-    realPos = traci->getTraCIXY(mobility->getCurrentPosition());
-
-    //Update GPS Position
-    UpdateGPS();
-
-    //TODO Update Cooperative Positioning
-    UpdateCooperativePositioning();
-
-    //TODO Update Statistics
-
-    //TODO Update Dead Reckoning
-
-    //TODO Update...
 }
 
 void Communication::UpdateStatistics(){
@@ -540,14 +524,14 @@ void Communication::WriteLogFiles(){
     std::fstream beaconLogFile("../../RESULTS/"+std::to_string(seedPar)+'-'+std::to_string(densityMovVeh)+'-'+std::to_string(densityStatVeh)+'-'+std::to_string(hops)+'-'+std::to_string(myId)+".txt", std::fstream::app);
     beaconLogFile
     << std::setprecision(10) << simTime()
-    <<'\t'<< std::setprecision(10) << realPos.x
-    <<'\t'<< std::setprecision(10) << realPos.y
-    <<'\t'<< std::setprecision(10) << realPos.z
+    <<'\t'<< std::setprecision(10) << atualSUMOUTMPos.x
+    <<'\t'<< std::setprecision(10) << atualSUMOUTMPos.y
+    <<'\t'<< std::setprecision(10) << atualSUMOUTMPos.z
     <<'\t'<< std::setprecision(10) << gpsModule->getPosition().x
     <<'\t'<< std::setprecision(10) << gpsModule->getPosition().y
     <<'\t'<< std::setprecision(10) << gpsModule->getPosition().z
     <<'\t'<< std::setprecision(10) << gpsModule->getError()
-    /*<<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().x
+    <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().x
     <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().y
     <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().z
     <<'\t'<< std::setprecision(10) << drModule->getErrorUtm()
@@ -556,28 +540,18 @@ void Communication::WriteLogFiles(){
     <<'\t'<< std::setprecision(10) << drModule->getSensitivity()
     <<'\t'<< std::setprecision(10) << drModule->getError()
     <<'\t'<< std::setprecision(10) << drModule->getLPFTheta().getLpf()
-    <<'\t'<< std::setprecision(10) << outageModule->isInOutage()*/
+    <<'\t'<< std::setprecision(10) << outageModule->isInOutage()
     <<'\t'<< std::setprecision(10) << coopPos.x
     <<'\t'<< std::setprecision(10) << coopPos.y
     <<'\t'<< std::setprecision(10) << coopPos.z
     <<'\t'<< std::setprecision(10) << errorCPPos
-    /*<<'\t'<< std::setprecision(10) << coopPosDR.x
-    <<'\t'<< std::setprecision(10) << coopPosDR.y
-    <<'\t'<< std::setprecision(10) << coopPosDR.z
-    <<'\t'<< std::setprecision(10) << coopPosRSSIFS.x
-    <<'\t'<< std::setprecision(10) << coopPosRSSIFS.y
-    <<'\t'<< std::setprecision(10) << coopPosRSSIFS.z
-    <<'\t'<< std::setprecision(10) << coopPosRSSITRGI.x
-    <<'\t'<< std::setprecision(10) << coopPosRSSITRGI.y
-    <<'\t'<< std::setprecision(10) << coopPosRSSITRGI.z
-    <<'\t'<< std::setprecision(10) << mobility->getSpeed()*/
-
     << endl;
     beaconLogFile.close();
 }
 
 void Communication::CleanUpListNodes(){
     for(std::list<Node>::iterator it=listNodes.begin(); it!= listNodes.end(); ++it){
+        //FIXME Take care about this
         if( (simTime() - it->timestamp) > (2 * beaconInterval) ){
             //TODO Exchange to be based on delay
             it = listNodes.erase(it);
@@ -607,50 +581,136 @@ void Communication::InitLocModules(){
     outageModule->setOutagePos(outCoord.outage);
     outageModule->setRecoverPos(outCoord.recover);
 
-   /*std::cout << outageModule->getOutagePos() << endl;
-    std::cout << outageModule->getRecoverPos() << endl;
-    std::cout << outageModule->isInOutage() << endl;
-    std::cout << outageModule->isInRecover() << endl;*/
-
-
-    //Criar um objeto dataset que carrega o dataset e sorteia uma entrada de forma randomica
-    //e passa os valores pra classe outages...
-    //std::cout <<"Outage OUT: "<< outageModule->getOutagePos() << endl;
-    //std::cout <<"Outage REC: "<< outageModule->getRecoverPos() << endl;
-
     //Initializing GPS Module
     gpsModule = new GPS(traciVehicle->getRouteId());
     gpsModule->CompPosition(&coord);
-
-    //std::cout <<"GPS: "<< gpsModule->getPosition() << endl;
-    //std::cout <<"GPS: "<< std::setprecision(10)<< gpsModule->getError() << endl;
 
     //Initializing DR Module
     projection->setUtmCoord(gpsModule->getPosition());
     projection->FromUTMToLonLat();
     drModule = new DeadReckoning(projection->getGeoCoord(),beaconInterval.dbl());
 
-    //Initializing MapMatching Module
-    mapMatching = new MapMatching(traciVehicle->getRouteId());
-    mapMatching->DoMapMatching(traciVehicle->getRoadId(),gpsModule->getPosition());
-
-    //std::cout <<"MM: "<< mapMatching->getMatchPoint() << endl;
-    //std::cout <<"MM: "<< std::setprecision(10) << mapMatching->getDistGpsmm() << endl;
-
     //Initialize SUMO Positions tracker
     lastSUMOUTMPos = coord;
     atualSUMOUTMPos = lastSUMOUTMPos;
 
-    //Filters
-    filter = new Filters();
-
     //Multilateration Module
     multilateration = new Multilateration();
 
-    //Phy Models for RSSI
-    fsModel = new FreeSpaceModel();
-    trgiModel = new TwoRayInterferenceModel();
+    errorCPPos = 0;
+}
 
-    errorCPReal = 0;
+void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
+    /*BEGIN OF UPDATE SELF POSITIONING (GPS and DR)*/
+
+    //Put unique persistent ID for FORWARDING purposes
+    bsm->setPersistentID(bsm->getId());
+
+    //Initialize Hops counter with zero
+    bsm->setHops(0);
+
+    //This is a vehicle beacon
+    bsm->setIsRSUBSM(false);
+
+    //Convert from OMNET to TRACI/SUMO
+    Coord coord = traci->getTraCIXY(mobility->getCurrentPosition());
+
+    lastSUMOUTMPos = atualSUMOUTMPos;
+    atualSUMOUTMPos = coord;
+
+    //Real Position
+    bsm->setSenderRealPos(atualSUMOUTMPos);
+
+    //Detect if in a outage stage...
+    outageModule->ControlOutage(&atualSUMOUTMPos);
+
+    //antes da queda
+    if(!outageModule->isInOutage() && !outageModule->isInRecover()){
+        //Put in WSM that this vehicle isn't in outage stage
+        bsm->setInOutage(false);
+
+        //Compute GPS Position and Error
+        gpsModule->CompPosition(&atualSUMOUTMPos);
+
+        bsm->setSenderGPSPos(gpsModule->getPosition());
+        bsm->setErrorGPS(gpsModule->getError());
+
+        //Only Update Dead Reckoning Module with last GPS Position
+        projection->setUtmCoord(gpsModule->getPosition());
+        projection->FromUTMToLonLat();
+        drModule->setLastKnowPosGeo(projection->getGeoCoord());
+        drModule->setLastKnowPosUtm(gpsModule->getPosition());
+        drModule->setErrorUtm(gpsModule->getError());
+        drModule->setErrorGeo(gpsModule->getError());
+
+        //collecting stats for teh time of outage...
+        timestampOutage = simTime();
+    }
+    else{
+        //em queda
+        if(outageModule->isInOutage() && !outageModule->isInRecover()){
+            bsm->setInOutage(true);
+
+            //Convert from UTM to Lat Lon Coordinates from SUMO positions (last and actual) for use in GDR
+            projection->setUtmCoord(lastSUMOUTMPos);
+            projection->FromUTMToLonLat();
+            lastSUMOGeoPos = projection->getGeoCoord();
+            projection->setUtmCoord(atualSUMOUTMPos);
+            projection->FromUTMToLonLat();
+            actualSUMOGeoPos = projection->getGeoCoord();
+
+            //Compute GDR position.
+            drModule->setGeoPos(&lastSUMOGeoPos, &actualSUMOGeoPos);
+            //Convert from Lon Lat to UTM coordinates
+            projection->setGeoCoord(drModule->getLastKnowPosGeo());
+            projection->FromLonLatToUTM();
+            //Update in UTM Coordinates in DR Module
+            drModule->setUTMPos(projection->getUtmCoord());
+            drModule->setErrorUTMPos(&atualSUMOUTMPos);
+            bsm->setSenderDRPos(drModule->getLastKnowPosUtm());
+            bsm->setErrorDR(drModule->getErrorUtm());
+
+            //UPDATE GPS error considering last position before outage
+            gpsModule->CompError(&atualSUMOUTMPos);
+
+            bsm->setSenderGPSPos(gpsModule->getPosition());
+            bsm->setErrorGPS(gpsModule->getError());
+
+            //collecting stats about outage
+            timestampRecover = simTime();
+        }
+        else{
+            //Put in WSM that this vehicle isn't in outage stage anymore
+            bsm->setInOutage(false);
+            gpsModule->CompPosition(&atualSUMOUTMPos);
+            drModule->setLastKnowPosUtm(gpsModule->getPosition());
+            drModule->setErrorUtm(gpsModule->getError());
+            bsm->setSenderGPSPos(gpsModule->getPosition());
+            bsm->setErrorGPS(gpsModule->getError());
+            bsm->setSenderDRPos(gpsModule->getPosition());
+            bsm->setErrorDR(gpsModule->getError());
+        }
+    }
+    /*
+    * *END OF UPDATE OF SELF POSITIONING (GPS and DR)
+    */
+}
+
+
+void Communication::ImproveDeadReckoning(){
+    //************************
+    //**************FIXME First Approach to improve DR
+    if( (outageModule->isInOutage() && !outageModule->isInRecover()) && (errorCPPos < drModule->getErrorUtm()) && errorCPPos > 1){
+       //(errorCPReal < 20.0 && errorCPReal > 1) && )  ){
+        drModule->ReinitializeSensors();
+        //Update DR with CP position
+        drModule->setLastKnowPosUtm(coopPos);
+        drModule->setErrorUtm(errorCPPos);
+        //Update Geo and UTM coordinates in DR Module
+        projection->setUtmCoord(drModule->getLastKnowPosUtm());
+        projection->FromUTMToLonLat();
+        drModule->setLastKnowPosGeo(projection->getGeoCoord());
+        drModule->setErrorGeo(errorCPPos);
+    }
 }
 

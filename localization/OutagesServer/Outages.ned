@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package com.liborio.sbrc2018.localization.OutagesServer;
+package com.liborio.cooppos.localization.OutagesServer;
 
 import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
 //

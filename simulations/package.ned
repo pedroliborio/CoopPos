@@ -1,3 +1,3 @@
-package com.liborio.sbrc2018.simulations;
+package com.liborio.cooppos.simulations;
 
 @license(LGPL);

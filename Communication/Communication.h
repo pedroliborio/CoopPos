@@ -182,7 +182,7 @@ class Communication : public BaseApplLayer {
 
         virtual void CleanUpListNodes();
 
-        virtual void UpdatePositions();
+        virtual void ImproveDeadReckoning();
 
         virtual void UpdateStatistics();
 
@@ -230,12 +230,20 @@ class Communication : public BaseApplLayer {
         Coord coopPos;
         double errorCPPos;
 
+        /*Variables to control outages*/
+        simtime_t timestampRecover;
+        simtime_t timestampOutage;
+        Coord lastSUMOUTMPos;
+        Coord atualSUMOUTMPos;
+        LonLat lastSUMOGeoPos;
+        LonLat actualSUMOGeoPos;
+
         /*GPS Module*/
         GPS *gpsModule;
         double stdDevGPS;
 
         /*Multilateration Module*/
-        Multilateration multilateration;
+        Multilateration *multilateration;
 
         /*Dead Reckoning Module*/
         DeadReckoning *drModule;
