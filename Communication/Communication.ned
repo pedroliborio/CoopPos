@@ -55,8 +55,9 @@ simple Communication like IBaseApplLayer
         bool communicateWhileParked = default(false); //whether the car should communicate when it is parked in SUMO
         
         //Parameters to control simulation
-        int densityMovVeh = default(100);
-        int densityStatVeh = default(25);
+        //int densityMovVeh = default(100);
+        //int densityStatVeh = default(25);
+        int logVehPeriod = default(1); 
         int hops = default(1);
         int seedPar;
         

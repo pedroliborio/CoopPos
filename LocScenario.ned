@@ -21,9 +21,9 @@ import com.liborio.cooppos.localization.OutagesServer.OutagesServer;
 network LocScenario extends Scenario
 {
     submodules:
-        rsu[1]: RSU {
-            @display("p=150,140;i=device/receiverdish,blue");
-        }
+        //rsu[1]: RSU {
+        //    @display("p=150,140;i=device/receiverdish,blue");
+        //}
 
         outagesServer : OutagesServer {
             @display("i=abstract/db;p=68,73");

@@ -83,11 +83,12 @@ void Communication::initialize(int stage) {
         receivedWSMs = 0;
 
         //Simulation parameters
-        densityMovVeh = par("densityMovVeh").longValue();
-        densityStatVeh = par("densityStatVeh").longValue();
+        //densityMovVeh = par("densityMovVeh").longValue();
+        //densityStatVeh = par("densityStatVeh").longValue();
         isFirstVehicle = par("isFirstVehicle").boolValue();
         hops = par("hops").longValue();
         seedPar = par("seedPar").longValue();
+        logVehPeriod = par("logVehPeriod").longValue();
 
         //GPS Parameters
         stdDevGPS = par("stdDevGPS").doubleValue();
@@ -100,6 +101,8 @@ void Communication::initialize(int stage) {
         //RMSE...
         rmseSUMGPS = 0;
         rmseSUMCP = 0;
+
+        InitLocModules();
     }
     else if (stage == 1) {
         //simulate asynchronous channel access
@@ -287,16 +290,20 @@ void Communication::handleSelfMsg(cMessage* msg) {
         BasicSafetyMessage* bsm = new BasicSafetyMessage();
         //Clean Up older beacons
         CleanUpListNodes();
+
         //Insert Beacon's Information and Update GPS and DR Modules
         InsertBeaconInformation(bsm);
 
+        //Update CP
         UpdateCooperativePositioning();
 
+        //Improve DR
         ImproveDeadReckoning();
 
         //Update all statistics
         UpdateStatistics();
 
+        //Write Log Files
         WriteLogFiles();
         populateWSM(bsm);
         sendDown(bsm);
@@ -521,7 +528,7 @@ void Communication::UpdateStatistics(){
 
 
 void Communication::WriteLogFiles(){
-    std::fstream beaconLogFile("../../RESULTS/"+std::to_string(seedPar)+'-'+std::to_string(densityMovVeh)+'-'+std::to_string(densityStatVeh)+'-'+std::to_string(hops)+'-'+std::to_string(myId)+".txt", std::fstream::app);
+    std::fstream beaconLogFile("../../RESULTS/"+std::to_string(seedPar)+'-'+std::to_string(logVehPeriod)+'-'+std::to_string(hops)+'-'+std::to_string(myId)+".txt", std::fstream::app);
     beaconLogFile
     << std::setprecision(10) << simTime()
     <<'\t'<< std::setprecision(10) << atualSUMOUTMPos.x

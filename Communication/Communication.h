@@ -270,8 +270,11 @@ class Communication : public BaseApplLayer {
         int densityMovVeh;
         int densityStatVeh;
         bool isFirstVehicle;
+
         int hops;
         int seedPar;
+        int logVehPeriod;
+
         double delaySum;
         double rmseSUMGPS;
         double rmseSUMCP;
