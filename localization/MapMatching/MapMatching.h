@@ -24,7 +24,7 @@ private:
     Coord matchPoint;//point inside the edge with min dist to P_gps
     double distGPSMM;//distance between P_GPS, P_Mp
 
-    double **coordinates;
+    std::vector<Coord> coordinates;
 
     std::vector<Edge> listEdges;//Edges extracted from .net file
     double Magnitude( Coord *A, Coord *B );
@@ -32,7 +32,7 @@ private:
 public:
     MapMatching();
     MapMatching(std::string route);
-    void DoMapMatching(std::string edgeID, Coord pGPS);
+    void DoMapMatching(const Coord& pGPS);
     virtual ~MapMatching();
 
     double getDistGpsmm() const {

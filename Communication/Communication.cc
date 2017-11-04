@@ -300,6 +300,11 @@ void Communication::handleSelfMsg(cMessage* msg) {
         //Improve DR
         ImproveDeadReckoning();
 
+        //MapMatching
+        mapMatchingModule->DoMapMatching(drModule->getLastKnowPosUtm());
+
+        //std::cout << mapMatchingModule->getMatchPoint() << endl;
+
         //Update all statistics
         UpdateStatistics();
 
@@ -567,6 +572,11 @@ void Communication::WriteLogFiles(){
     <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getError()
     <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLPFTheta().getLpf()
 
+    <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().x
+    <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().y
+    <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().z
+    <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().distance(atualSUMOUTMPos)
+
 
     <<'\t'<< std::setprecision(10) << outageModule->isInOutage()
     <<'\t'<< std::setprecision(10) << coopPos.x
@@ -627,6 +637,9 @@ void Communication::InitLocModules(){
 
     //Multilateration Module
     multilateration = new Multilateration();
+
+    //Initialize MM Module
+    mapMatchingModule = new MapMatching(traciVehicle->getRouteId());
 
     errorCPPos = 0;
 }

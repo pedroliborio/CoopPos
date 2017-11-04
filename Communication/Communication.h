@@ -255,6 +255,9 @@ class Communication : public BaseApplLayer {
         /*Projection Module*/
         Projection *projection;
 
+        /*MapMatching Module*/
+        MapMatching *mapMatchingModule;
+
         /* stats */
         uint32_t generatedWSMs;
         uint32_t generatedWSAs;
