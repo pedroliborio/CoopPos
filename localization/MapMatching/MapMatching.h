@@ -14,6 +14,7 @@
 struct t_Edge{
     std::string id;
     std::vector<Coord> shape;
+
 };typedef struct t_Edge Edge;
 
 namespace Localization {
@@ -22,6 +23,8 @@ class MapMatching {
 private:
     Coord matchPoint;//point inside the edge with min dist to P_gps
     double distGPSMM;//distance between P_GPS, P_Mp
+
+    double **coordinates;
 
     std::vector<Edge> listEdges;//Edges extracted from .net file
     double Magnitude( Coord *A, Coord *B );

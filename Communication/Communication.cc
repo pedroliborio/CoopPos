@@ -435,7 +435,10 @@ void Communication::UpdateNodesList(BasicSafetyMessage *bsm){
             it->posGPS = bsm->getSenderGPSPos();
             it->realPos = bsm->getSenderRealPos();
             it->rssi = bsm->getRssi();//TODO Improve to calculate using a RSSI Model Fix it with values of the paper.
+
             it->distanceRSSI = atualSUMOUTMPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
+            it->distanceRSSI += (RNGCONTEXT normal(0, it->distanceRSSI*0.1));
+
             it->timestamp = bsm->getTimestamp();
             return;
         }
@@ -445,8 +448,11 @@ void Communication::UpdateNodesList(BasicSafetyMessage *bsm){
     node.id = bsm->getSenderAddress();
     node.posGPS = bsm->getSenderGPSPos();
     node.realPos = bsm->getSenderRealPos();
-    node.rssi = bsm->getRssi();//TODO Improve to calculate using a RSSI Model Fix it with values of the paper.
+    node.rssi = bsm->getRssi();//TODO Improve to calculate using a RSSI Model Fix it with values of the paper
+
     node.distanceRSSI = atualSUMOUTMPos.distance(bsm->getSenderRealPos()); //TODO exchange for distance from RSSI
+    node.distanceRSSI += (RNGCONTEXT normal(0, node.distanceRSSI*0.1));
+
     node.timestamp = bsm->getTimestamp();
 
     listNodes.push_back(node);
@@ -511,9 +517,11 @@ void Communication::SortByResidual(){
 double Communication::SetResidual(){
     double distance, residual;
     residual = 0;
-    for(std::list<Node>::iterator it=listNodes.begin(); it!= listNodes.end(); ++it){
+    for (std::list<Node>::iterator it=listNodes.begin(); it!= listNodes.end(); ++it){
+
         //distance from the estimated point by multilateration to the position of an acnhor node (i)
         distance = multilateration->getEstPosition().distance(it->realPos);
+
         //residual is the difference between the above distance and the rssi distance
         it->residual = (distance - it->distanceRSSI) * (distance - it->distanceRSSI);
         residual+= it->residual;
@@ -538,6 +546,7 @@ void Communication::WriteLogFiles(){
     <<'\t'<< std::setprecision(10) << gpsModule->getPosition().y
     <<'\t'<< std::setprecision(10) << gpsModule->getPosition().z
     <<'\t'<< std::setprecision(10) << gpsModule->getError()
+
     <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().x
     <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().y
     <<'\t'<< std::setprecision(10) << drModule->getLastKnowPosUtm().z
@@ -547,6 +556,18 @@ void Communication::WriteLogFiles(){
     <<'\t'<< std::setprecision(10) << drModule->getSensitivity()
     <<'\t'<< std::setprecision(10) << drModule->getError()
     <<'\t'<< std::setprecision(10) << drModule->getLPFTheta().getLpf()
+
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().x
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().y
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().z
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getErrorUtm()
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getAngle()
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getArw()
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getSensitivity()
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getError()
+    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLPFTheta().getLpf()
+
+
     <<'\t'<< std::setprecision(10) << outageModule->isInOutage()
     <<'\t'<< std::setprecision(10) << coopPos.x
     <<'\t'<< std::setprecision(10) << coopPos.y
@@ -595,7 +616,10 @@ void Communication::InitLocModules(){
     //Initializing DR Module
     projection->setUtmCoord(gpsModule->getPosition());
     projection->FromUTMToLonLat();
+
     drModule = new DeadReckoning(projection->getGeoCoord(),beaconInterval.dbl());
+
+    drModuleWithoutReinit = new DeadReckoning(projection->getGeoCoord(),beaconInterval.dbl());
 
     //Initialize SUMO Positions tracker
     lastSUMOUTMPos = coord;
@@ -650,6 +674,15 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
         drModule->setErrorUtm(gpsModule->getError());
         drModule->setErrorGeo(gpsModule->getError());
 
+        //pass to the module of DR only
+        drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
+        drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
+        drModuleWithoutReinit->setAngle(drModule->getAngle());
+        drModuleWithoutReinit->setArw(drModule->getArw());
+        drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
+        drModuleWithoutReinit->setError(drModule->getError());
+        drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
+
         //collecting stats for teh time of outage...
         timestampOutage = simTime();
     }
@@ -677,6 +710,17 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
             bsm->setSenderDRPos(drModule->getLastKnowPosUtm());
             bsm->setErrorDR(drModule->getErrorUtm());
 
+            //DR ONly
+            drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
+            drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
+            drModuleWithoutReinit->setAngle(drModule->getAngle());
+            drModuleWithoutReinit->setArw(drModule->getArw());
+            drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
+            drModuleWithoutReinit->setError(drModule->getError());
+            drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
+
+
+
             //UPDATE GPS error considering last position before outage
             gpsModule->CompError(&atualSUMOUTMPos);
 
@@ -690,8 +734,19 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
             //Put in WSM that this vehicle isn't in outage stage anymore
             bsm->setInOutage(false);
             gpsModule->CompPosition(&atualSUMOUTMPos);
+
+
             drModule->setLastKnowPosUtm(gpsModule->getPosition());
             drModule->setErrorUtm(gpsModule->getError());
+
+            drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
+            drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
+            drModuleWithoutReinit->setAngle(drModule->getAngle());
+            drModuleWithoutReinit->setArw(drModule->getArw());
+            drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
+            drModuleWithoutReinit->setError(drModule->getError());
+            drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
+
             bsm->setSenderGPSPos(gpsModule->getPosition());
             bsm->setErrorGPS(gpsModule->getError());
             bsm->setSenderDRPos(gpsModule->getPosition());

@@ -247,6 +247,7 @@ class Communication : public BaseApplLayer {
 
         /*Dead Reckoning Module*/
         DeadReckoning *drModule;
+        DeadReckoning *drModuleWithoutReinit;
 
         /*Outage Module*/
         Outage *outageModule;

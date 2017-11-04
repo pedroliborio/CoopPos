@@ -14,6 +14,26 @@ MapMatching::MapMatching() {
 
 }
 
+//MapMatching::MapMatching(std::string route) {
+//    // TODO Parse the path for the correct when needed
+//
+//    std::string routeFileName = "../localization/Graphs/out/"+route+".txt";
+//    std::fstream fileGraph(routeFileName.c_str());
+//    Edge edge;
+//    Coord coord;
+//    int i, totalCoords;
+//
+//    while(fileGraph >> edge.id >> totalCoords){
+//
+//        for (i = 0; i < totalCoords; i++){
+//            fileGraph >> coord.x >> coord.y;
+//            edge.shape.push_back(coord);
+//        }
+//
+//        listEdges.push_back(edge);
+//    }
+//}
+
 MapMatching::MapMatching(std::string route) {
     // TODO Parse the path for the correct when needed
 
@@ -32,7 +52,58 @@ MapMatching::MapMatching(std::string route) {
 
         listEdges.push_back(edge);
     }
+
+    if (route == "DMATEntranceExit" ){
+
+    }
+    else{
+        if(route == "DMATExitEntrance"){
+
+        }
+        else{
+            if(route == "DPTExitEntrance"){
+
+            }
+            else{
+                if(route == "DPTExitEntrance"){
+
+                }
+                else{
+                    if(route == "RCLTEntranceExit"){
+
+                    }
+                    else{
+                        if(route == "RCLTExitEntrance"){
+
+                        }
+                        else{
+                            if(route == "RIO450EntranceExit"){
+
+                            }
+                            else{
+                                if(route == "YBTEntranceExit"){
+
+                                }
+                                else{
+                                    if(route == "YBTExitEntrance"){
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 }
+
+
+
+
+
 
 //Calcular menor distancia ponto reta http://stackoverflow.com/questions/12132352/distance-from-a-point-to-a-line-segment
 //http://stackoverflow.com/questions/3120357/get-closest-point-to-a-line

@@ -63,58 +63,58 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
 OBJS = \
-    $O/Communication/Communication.o \
     $O/Communication/StatVehicle.o \
+    $O/Communication/Communication.o \
     $O/Types/Types.o \
     $O/localization/DeadReckoning/DeadReckoning.o \
-    $O/localization/Filters/LowPassFilter.o \
     $O/localization/Filters/Filters.o \
+    $O/localization/Filters/LowPassFilter.o \
     $O/localization/GPS/GPS.o \
-    $O/localization/GeographicLib/src/GeodesicExactC4.o \
-    $O/localization/GeographicLib/src/MagneticModel.o \
+    $O/localization/GeographicLib/src/GeodesicLineExact.o \
+    $O/localization/GeographicLib/src/CircularEngine.o \
+    $O/localization/GeographicLib/src/DMS.o \
+    $O/localization/GeographicLib/src/Gnomonic.o \
     $O/localization/GeographicLib/src/Ellipsoid.o \
-    $O/localization/GeographicLib/src/AzimuthalEquidistant.o \
-    $O/localization/GeographicLib/src/GeodesicExact.o \
-    $O/localization/GeographicLib/src/PolygonArea.o \
-    $O/localization/GeographicLib/src/GeodesicLine.o \
-    $O/localization/GeographicLib/src/Geohash.o \
-    $O/localization/GeographicLib/src/SphericalEngine.o \
-    $O/localization/GeographicLib/src/Georef.o \
-    $O/localization/GeographicLib/src/Geodesic.o \
     $O/localization/GeographicLib/src/Utility.o \
-    $O/localization/GeographicLib/src/CassiniSoldner.o \
-    $O/localization/GeographicLib/src/MagneticCircle.o \
-    $O/localization/GeographicLib/src/MGRS.o \
-    $O/localization/GeographicLib/src/OSGB.o \
-    $O/localization/GeographicLib/src/LambertConformalConic.o \
+    $O/localization/GeographicLib/src/Geohash.o \
+    $O/localization/GeographicLib/src/GeodesicExact.o \
+    $O/localization/GeographicLib/src/GeodesicExactC4.o \
+    $O/localization/GeographicLib/src/EllipticFunction.o \
+    $O/localization/GeographicLib/src/GeodesicLine.o \
+    $O/localization/GeographicLib/src/MagneticModel.o \
+    $O/localization/GeographicLib/src/SphericalEngine.o \
+    $O/localization/GeographicLib/src/LocalCartesian.o \
+    $O/localization/GeographicLib/src/GravityModel.o \
     $O/localization/GeographicLib/src/TransverseMercator.o \
     $O/localization/GeographicLib/src/NormalGravity.o \
-    $O/localization/GeographicLib/src/GeoCoords.o \
-    $O/localization/GeographicLib/src/GARS.o \
-    $O/localization/GeographicLib/src/Math.o \
-    $O/localization/GeographicLib/src/UTMUPS.o \
-    $O/localization/GeographicLib/src/TransverseMercatorExact.o \
-    $O/localization/GeographicLib/src/GravityModel.o \
-    $O/localization/GeographicLib/src/Geoid.o \
-    $O/localization/GeographicLib/src/GeodesicLineExact.o \
-    $O/localization/GeographicLib/src/PolarStereographic.o \
     $O/localization/GeographicLib/src/GravityCircle.o \
-    $O/localization/GeographicLib/src/AlbersEqualArea.o \
-    $O/localization/GeographicLib/src/EllipticFunction.o \
-    $O/localization/GeographicLib/src/LocalCartesian.o \
-    $O/localization/GeographicLib/src/CircularEngine.o \
-    $O/localization/GeographicLib/src/Accumulator.o \
-    $O/localization/GeographicLib/src/Geocentric.o \
-    $O/localization/GeographicLib/src/Gnomonic.o \
     $O/localization/GeographicLib/src/Rhumb.o \
-    $O/localization/GeographicLib/src/DMS.o \
+    $O/localization/GeographicLib/src/AzimuthalEquidistant.o \
+    $O/localization/GeographicLib/src/MGRS.o \
+    $O/localization/GeographicLib/src/GeoCoords.o \
+    $O/localization/GeographicLib/src/LambertConformalConic.o \
+    $O/localization/GeographicLib/src/PolarStereographic.o \
+    $O/localization/GeographicLib/src/MagneticCircle.o \
+    $O/localization/GeographicLib/src/Geocentric.o \
+    $O/localization/GeographicLib/src/CassiniSoldner.o \
+    $O/localization/GeographicLib/src/OSGB.o \
+    $O/localization/GeographicLib/src/PolygonArea.o \
+    $O/localization/GeographicLib/src/Geoid.o \
+    $O/localization/GeographicLib/src/AlbersEqualArea.o \
+    $O/localization/GeographicLib/src/TransverseMercatorExact.o \
+    $O/localization/GeographicLib/src/UTMUPS.o \
+    $O/localization/GeographicLib/src/Math.o \
+    $O/localization/GeographicLib/src/Geodesic.o \
+    $O/localization/GeographicLib/src/GARS.o \
+    $O/localization/GeographicLib/src/Accumulator.o \
+    $O/localization/GeographicLib/src/Georef.o \
     $O/localization/MapMatching/MapMatching.o \
     $O/localization/Multilateration/Multilateration.o \
     $O/localization/Outage/Outage.o \
     $O/localization/OutagesServer/Outages.o \
     $O/localization/Projections/Projection.o \
-    $O/localization/RSSI/TwoRayInterferenceModel.o \
-    $O/localization/RSSI/FreeSpaceModel.o
+    $O/localization/RSSI/FreeSpaceModel.o \
+    $O/localization/RSSI/TwoRayInterferenceModel.o
 
 # Message files
 MSGFILES =
