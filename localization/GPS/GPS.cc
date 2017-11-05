@@ -38,13 +38,13 @@ GPS::GPS(std::string route) {
             if(route  == "DPTEntranceExit"){
                 this->mean = 6.23195053621;
                 //this->stdDev = 2.95601551205;
-                this->stdDev = 0,985338504;
+                this->stdDev = 0.985338504;
             }
             else{
                 if(route =="DPTExitEntrance"){
                     this->mean = 7.59763440355;
                     //this->stdDev = 3.41503134687;
-                    this->stdDev = 1,138343782;
+                    this->stdDev = 1.138343782;
                 }
                 else{
                     if(route =="RCLTEntranceExit"){
@@ -73,7 +73,7 @@ GPS::GPS(std::string route) {
                                 else{
                                     if(route =="RIO450EntranceExit"){
                                         this->mean= 9.50330634515;
-                                        this->stdDev= 1,142441789;
+                                        this->stdDev= 1.142441789;
                                     }
                                 }
 
