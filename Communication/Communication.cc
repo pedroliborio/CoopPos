@@ -687,14 +687,20 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
         drModule->setErrorUtm(gpsModule->getError());
         drModule->setErrorGeo(gpsModule->getError());
 
+
+        drModuleWithoutReinit->setLastKnowPosGeo(projection->getGeoCoord());
+        drModuleWithoutReinit->setLastKnowPosUtm(gpsModule->getPosition());
+        drModuleWithoutReinit->setErrorUtm(gpsModule->getError());
+        drModuleWithoutReinit->setErrorGeo(gpsModule->getError());
+
         //pass to the module of DR only
-        drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
-        drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
-        drModuleWithoutReinit->setAngle(drModule->getAngle());
-        drModuleWithoutReinit->setArw(drModule->getArw());
-        drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
-        drModuleWithoutReinit->setError(drModule->getError());
-        drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
+//        drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
+//        drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
+//        drModuleWithoutReinit->setAngle(drModule->getAngle());
+//        drModuleWithoutReinit->setArw(drModule->getArw());
+//        drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
+//        drModuleWithoutReinit->setError(drModule->getError());
+//        drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
 
         //collecting stats for teh time of outage...
         timestampOutage = simTime();
@@ -714,25 +720,19 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
 
             //Compute GDR position.
             drModule->setGeoPos(&lastSUMOGeoPos, &actualSUMOGeoPos);
+            drModuleWithoutReinit->setGeoPos(&lastSUMOGeoPos, &actualSUMOGeoPos);
+
             //Convert from Lon Lat to UTM coordinates
             projection->setGeoCoord(drModule->getLastKnowPosGeo());
             projection->FromLonLatToUTM();
             //Update in UTM Coordinates in DR Module
             drModule->setUTMPos(projection->getUtmCoord());
             drModule->setErrorUTMPos(&atualSUMOUTMPos);
+            drModuleWithoutReinit->setUTMPos(projection->getUtmCoord());
+            drModuleWithoutReinit->setErrorUTMPos(&atualSUMOUTMPos);
+
             bsm->setSenderDRPos(drModule->getLastKnowPosUtm());
             bsm->setErrorDR(drModule->getErrorUtm());
-
-            //DR ONly
-            drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
-            drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
-            drModuleWithoutReinit->setAngle(drModule->getAngle());
-            drModuleWithoutReinit->setArw(drModule->getArw());
-            drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
-            drModuleWithoutReinit->setError(drModule->getError());
-            drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
-
-
 
             //UPDATE GPS error considering last position before outage
             gpsModule->CompError(&atualSUMOUTMPos);
@@ -752,13 +752,8 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
             drModule->setLastKnowPosUtm(gpsModule->getPosition());
             drModule->setErrorUtm(gpsModule->getError());
 
-            drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
-            drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
-            drModuleWithoutReinit->setAngle(drModule->getAngle());
-            drModuleWithoutReinit->setArw(drModule->getArw());
-            drModuleWithoutReinit->setSensitivity(drModule->getSensitivity());
-            drModuleWithoutReinit->setError(drModule->getError());
-            drModuleWithoutReinit->setLPFTheta(drModule->getLPFTheta());
+            drModuleWithoutReinit->setLastKnowPosUtm(gpsModule->getPosition());
+            drModuleWithoutReinit->setErrorUtm(gpsModule->getError());
 
             bsm->setSenderGPSPos(gpsModule->getPosition());
             bsm->setErrorGPS(gpsModule->getError());
