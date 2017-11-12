@@ -21,6 +21,7 @@ namespace Localization {
 
 class MapMatching {
 private:
+    uint index;
     Coord matchPoint;//point inside the edge with min dist to P_gps
     double distGPSMM;//distance between P_GPS, P_Mp
 

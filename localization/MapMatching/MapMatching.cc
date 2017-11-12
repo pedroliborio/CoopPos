@@ -1446,8 +1446,12 @@ void MapMatching::DoMapMatching(const Coord& pGPS){
         if( DistancePointLine( &A, &B, &P, &matchPoint, &distGPSMM) ){
             //std::cout << "MM!\n\n";
             //std::cout << matchPoint <<'\t'<< pGPS << endl;
-
-            break;
+            if ( !(matchPoint.x == matchPoint.x)  || !(matchPoint.x == matchPoint.x)){
+                continue;
+            }
+            else{
+                break;
+            }
         }
     }
 }
