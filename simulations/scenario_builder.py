@@ -62,10 +62,10 @@ for  i in range(0,len(networks)):
 			if(networks[i] != 'rio450.net.xml'):
 				routeFile.write('\t<route id="'+routesExEn[i]+'" edges="'+edgesExEn[i]+'"/>\n')			
 
-			routeFile.write('\t<flow id="flowEntranceExit" departLane="random" type="Car" route="'+routesEnEx[i]+'" begin="0.0" departSpeed="max" period="'+period+'" number="1000" />\n')
+			routeFile.write('\t<flow id="flowEntranceExit" departLane="random" type="Car" route="'+routesEnEx[i]+'" begin="0.0" departSpeed="max" period="'+period+'" number="600" />\n')
 			
 			if(networks[i] != 'rio450.net.xml'):
-				routeFile.write('\t<flow id="flowExitEntrance" departLane="random" type="Car" route="'+routesExEn[i]+'" begin="0.0" departSpeed="max" period="'+period+'" number="1000" />\n')
+				routeFile.write('\t<flow id="flowExitEntrance" departLane="random" type="Car" route="'+routesExEn[i]+'" begin="0.0" departSpeed="max" period="'+period+'" number="600" />\n')
 			
 			routeFile.write('</routes>\n')
 		routeFile.close()

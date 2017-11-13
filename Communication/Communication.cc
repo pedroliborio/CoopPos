@@ -586,7 +586,9 @@ void Communication::WriteLogFiles(){
 void Communication::CleanUpListNodes(){
     for(std::list<Node>::iterator it=listNodes.begin(); it!= listNodes.end(); ++it){
         //FIXME Take care about this
-        if( (simTime() - it->timestamp) > (2 * beaconInterval) ){
+        //I am putting 0.5 because the update interval is 0.1 so we expect that at least 0.5 second an
+        //beacon can do 5 hops.
+        if( (simTime() - it->timestamp) > (0.5) ){
             //TODO Exchange to be based on delay
             it = listNodes.erase(it);
         }

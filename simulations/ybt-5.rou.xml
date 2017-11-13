@@ -3,6 +3,6 @@
 	<vType accel="1.0" decel="5.0" id="Car" length="3.5" maxSpeed="11.15" sigma="0.5" />
 	<route id="YBTEntranceExit" edges="50690291 179235221 52721870 50691047 52527662 237731428#0 237731428#1 237731428#2"/>
 	<route id="YBTExitEntrance" edges="236348361 236348360#0 236348360#1 236348360#2 236348364#0 236348364#1 11415208 23874736 394443191"/>
-	<flow id="flowEntranceExit" departLane="random" type="Car" route="YBTEntranceExit" begin="0.0" departSpeed="max" period="5" number="1000" />
-	<flow id="flowExitEntrance" departLane="random" type="Car" route="YBTExitEntrance" begin="0.0" departSpeed="max" period="5" number="1000" />
+	<flow id="flowEntranceExit" departLane="random" type="Car" route="YBTEntranceExit" begin="0.0" departSpeed="max" period="5" number="300" />
+	<flow id="flowExitEntrance" departLane="random" type="Car" route="YBTExitEntrance" begin="0.0" departSpeed="max" period="5" number="300" />
 </routes>

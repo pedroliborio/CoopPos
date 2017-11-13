@@ -3,6 +3,6 @@
 	<vType accel="1.0" decel="5.0" id="Car" length="3.5" maxSpeed="8.89" sigma="0.5" />
 	<route id="RCLTEntranceExit" edges="-27050852 26938354 85644944 87297166 26938250 8921173 -87376660#2 -87376660#1 -87376660#0 -87376695 -87376682"/>
 	<route id="RCLTExitEntrance" edges="87376682 87376695 87376660#0 87376660#1 87376660#2 26938247 133376103 8921175 26938401 87297169 85644934 27050852"/>
-	<flow id="flowEntranceExit" departLane="random" type="Car" route="RCLTEntranceExit" begin="0.0" departSpeed="max" period="1" number="1000" />
-	<flow id="flowExitEntrance" departLane="random" type="Car" route="RCLTExitEntrance" begin="0.0" departSpeed="max" period="1" number="1000" />
+	<flow id="flowEntranceExit" departLane="random" type="Car" route="RCLTEntranceExit" begin="0.0" departSpeed="max" period="1" number="300" />
+	<flow id="flowExitEntrance" departLane="random" type="Car" route="RCLTExitEntrance" begin="0.0" departSpeed="max" period="1" number="300" />
 </routes>
