@@ -247,7 +247,6 @@ class Communication : public BaseApplLayer {
 
         /*Dead Reckoning Module*/
         DeadReckoning *drModule;
-        DeadReckoning *drModuleWithoutReinit;
 
         /*Outage Module*/
         Outage *outageModule;
@@ -282,6 +281,8 @@ class Communication : public BaseApplLayer {
         double delaySum;
         double rmseSUMGPS;
         double rmseSUMCP;
+        double rmseSUMDR;
+        double rmseSUMMM;
 
         /*variables to define RSSI behavior*/
         double alpha;

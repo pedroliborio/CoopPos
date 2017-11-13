@@ -101,6 +101,8 @@ void Communication::initialize(int stage) {
         //RMSE...
         rmseSUMGPS = 0;
         rmseSUMCP = 0;
+        rmseSUMDR = 0;
+        rmseSUMMM = 0;
 
         InitLocModules();
     }
@@ -343,6 +345,8 @@ void Communication::finish() {
     //My Statistcs
     recordScalar("rmseSUMGPS",rmseSUMGPS);
     recordScalar("rmseSUMCP",rmseSUMCP);
+    recordScalar("rmseSUMDR",rmseSUMDR);
+    recordScalar("rmseSUMMM",rmseSUMMM);
 
     recordScalar("delaySum",delaySum);
 
@@ -537,6 +541,8 @@ double Communication::SetResidual(){
 void Communication::UpdateStatistics(){
     rmseSUMGPS+= gpsModule->getError();
     rmseSUMCP+= errorCPPos;
+    rmseSUMDR+= drModule->getErrorUtm();
+    rmseSUMMM+= mapMatchingModule->getMatchPoint().distance(atualSUMOUTMPos);
 }
 
 
@@ -561,16 +567,6 @@ void Communication::WriteLogFiles(){
     <<'\t'<< std::setprecision(10) << drModule->getSensitivity()
     <<'\t'<< std::setprecision(10) << drModule->getError()
     <<'\t'<< std::setprecision(10) << drModule->getLPFTheta().getLpf()
-
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().x
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().y
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLastKnowPosUtm().z
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getErrorUtm()
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getAngle()
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getArw()
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getSensitivity()
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getError()
-    <<'\t'<< std::setprecision(10) << drModuleWithoutReinit->getLPFTheta().getLpf()
 
     <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().x
     <<'\t'<< std::setprecision(10) << mapMatchingModule->getMatchPoint().y
@@ -629,8 +625,6 @@ void Communication::InitLocModules(){
 
     drModule = new DeadReckoning(projection->getGeoCoord(),beaconInterval.dbl());
 
-    drModuleWithoutReinit = new DeadReckoning(projection->getGeoCoord(),beaconInterval.dbl());
-
     //Initialize SUMO Positions tracker
     lastSUMOUTMPos = coord;
     atualSUMOUTMPos = lastSUMOUTMPos;
@@ -687,12 +681,6 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
         drModule->setErrorUtm(gpsModule->getError());
         drModule->setErrorGeo(gpsModule->getError());
 
-
-        drModuleWithoutReinit->setLastKnowPosGeo(projection->getGeoCoord());
-        drModuleWithoutReinit->setLastKnowPosUtm(gpsModule->getPosition());
-        drModuleWithoutReinit->setErrorUtm(gpsModule->getError());
-        drModuleWithoutReinit->setErrorGeo(gpsModule->getError());
-
         //pass to the module of DR only
 //        drModuleWithoutReinit->setLastKnowPosUtm(drModule->getLastKnowPosUtm());
 //        drModuleWithoutReinit->setErrorUtm(drModule->getErrorUtm());
@@ -720,7 +708,6 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
 
             //Compute GDR position.
             drModule->setGeoPos(&lastSUMOGeoPos, &actualSUMOGeoPos);
-            drModuleWithoutReinit->setGeoPos(&lastSUMOGeoPos, &actualSUMOGeoPos);
 
             //Convert from Lon Lat to UTM coordinates
             projection->setGeoCoord(drModule->getLastKnowPosGeo());
@@ -728,8 +715,6 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
             //Update in UTM Coordinates in DR Module
             drModule->setUTMPos(projection->getUtmCoord());
             drModule->setErrorUTMPos(&atualSUMOUTMPos);
-            drModuleWithoutReinit->setUTMPos(projection->getUtmCoord());
-            drModuleWithoutReinit->setErrorUTMPos(&atualSUMOUTMPos);
 
             bsm->setSenderDRPos(drModule->getLastKnowPosUtm());
             bsm->setErrorDR(drModule->getErrorUtm());
@@ -751,9 +736,6 @@ void Communication::InsertBeaconInformation(BasicSafetyMessage* bsm){
 
             drModule->setLastKnowPosUtm(gpsModule->getPosition());
             drModule->setErrorUtm(gpsModule->getError());
-
-            drModuleWithoutReinit->setLastKnowPosUtm(gpsModule->getPosition());
-            drModuleWithoutReinit->setErrorUtm(gpsModule->getError());
 
             bsm->setSenderGPSPos(gpsModule->getPosition());
             bsm->setErrorGPS(gpsModule->getError());
